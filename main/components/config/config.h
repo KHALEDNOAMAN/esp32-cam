@@ -4,7 +4,7 @@
 
 #ifndef ESP_CAM_CONFIG_H
 #define ESP_CAM_CONFIG_H
-#define USE_LOCAL_CONFIG 1
+#define USE_LOCAL_CONFIG 0
 
 #ifdef USE_LOCAL_CONFIG
     #include "config_local.h"
