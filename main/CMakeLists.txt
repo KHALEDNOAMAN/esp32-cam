@@ -39,7 +39,9 @@ idf_component_register(
         esp_event
         esp_netif
         espressif__esp32-camera
+        espressif__esp_jpeg
         log
         freertos
+        esp_https_ota
 )
 target_compile_definitions(${COMPONENT_LIB} PRIVATE -DPROJECT_VER="${PROJECT_VER}")

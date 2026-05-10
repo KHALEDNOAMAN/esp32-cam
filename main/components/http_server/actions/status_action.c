@@ -13,17 +13,13 @@ extern uint32_t g_frames_saved;
 
 esp_err_t status_handler(httpd_req_t *req) {
     char json[256];
-    const uint32_t uptime_sec = (uint32_t) (esp_timer_get_time() / 1000000ULL);
-
     snprintf(json, sizeof(json),
-        "{\"sd\":\"%s\",\"frames_saved\":%lu,\"uptime_sec\":%lu\"}",
-        g_sd_ok ? "ok" : "error",
+        "{\"sensor\":\"GC2145\",\"sd\":\"%s\",\"frames_saved\":%lu,\"uptime_sec\":%lu}",
+        g_sd_ok ? "ok" : "not mounted",
         (unsigned long)g_frames_saved,
-        (unsigned long)uptime_sec
-    );
+        (unsigned long)(esp_timer_get_time() / 1000000ULL));
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-
     return httpd_resp_sendstr(req, json);
 }

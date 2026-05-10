@@ -47,8 +47,8 @@
 #define HTTP_SERVER_PORT 80
 
 #define CAPTURE_INTERVAL_MS 5000
-#define JPEG_QUALITY 12
-#define FRAME_SIZE FRAMESIZE_VGA
+#define JPEG_QUALITY 30
+#define FRAME_SIZE FRAMESIZE_QQVGA
 
 #define HOST "cam-dev" //ping cam-dev.local
 #define STREAM_BOUNDARY "frame"

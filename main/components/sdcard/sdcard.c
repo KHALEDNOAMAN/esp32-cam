@@ -9,6 +9,8 @@
 #include "driver/sdspi_host.h"
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
+#include "img_converters.h"
+#include "esp_camera.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -45,16 +47,15 @@ esp_err_t sdcard_init(void) {
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
         .max_files = SD_MAX_FILES,
-        .allocation_unit_size = 16 * 1024
+        .allocation_unit_size = 16 * 1024,
     };
 
     ret = esp_vfs_fat_sdspi_mount(SD_MOUNT_POINT, &host, &slot_config, &mount_config, &s_card);
     if (ret != ESP_OK) {
         ESP_LOGE(SD_TAG, "SD mount failed: %s", esp_err_to_name(ret));
         if (ret == ESP_FAIL) {
-            ESP_LOGE(SD_TAG, "Failed to mount FS. Format the card");
+            ESP_LOGE(SD_TAG, "Failed to mount FS. Format the card.");
         }
-
         return ret;
     }
 
@@ -66,17 +67,18 @@ esp_err_t sdcard_init(void) {
 
 const char* sdcard_save_jpeg(const uint8_t* data, const size_t length) {
     if (!s_card) {
-        ESP_LOGE(SD_TAG, "SD card not mounted");
+        ESP_LOGE(SD_TAG, "SD card not initialized");
         return NULL;
     }
 
-    snprintf(s_file_path, sizeof(s_file_path), SD_MOUNT_POINT "/img%05lu.jpg", (unsigned long) s_file_index++);
+    snprintf(s_file_path, sizeof(s_file_path), SD_MOUNT_POINT "/img%05lu.jpg", (unsigned long)s_file_index++);
+
     FILE *f = fopen(s_file_path, "wb");
     if (!f) {
         ESP_LOGE(SD_TAG, "Cannot open file: %s", s_file_path);
-
         return NULL;
     }
+
     const size_t written = fwrite(data, 1, length, f);
     fclose(f);
 

@@ -17,9 +17,13 @@ static httpd_handle_t s_httpd = NULL;
 esp_err_t http_server_start(char* host) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = HTTP_SERVER_PORT;
-    config.max_uri_handlers = 6;
-    config.lru_purge_enable = true;
-    config.stack_size = 6144;
+    // config.ctrl_port           = 32769;
+    config.max_uri_handlers    = 8;
+    config.max_open_sockets    = 5;
+    config.lru_purge_enable    = true;
+    // config.recv_wait_timeout   = 10;
+    config.send_wait_timeout   = 60;
+    config.stack_size          = 8192;
 
     ESP_LOGI(HTTP_TAG, "Starting HTTP server on port %d", config.server_port);
     if (httpd_start(&s_httpd, &config) != ESP_OK) {
@@ -68,11 +72,11 @@ esp_err_t http_server_start(char* host) {
     };
     httpd_register_uri_handler(s_httpd, &capture_uri);
 
-    ESP_LOGI(HTTP_TAG, "Index:  http://%s:%d", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Stream:  http://%s:%d/stream", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Save Image: http://%s:%d/save", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Capture: http://%s:%d/capture", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Status: http://%s:%d/status", host, HTTP_SERVER_PORT);
+    ESP_LOGI(HTTP_TAG, "Index:  http://%s.local:%d", host, HTTP_SERVER_PORT);
+    ESP_LOGI(HTTP_TAG, "Stream:  http://%s.local:%d/stream", host, HTTP_SERVER_PORT);
+    ESP_LOGI(HTTP_TAG, "Save Image: http://%s.local:%d/save", host, HTTP_SERVER_PORT);
+    ESP_LOGI(HTTP_TAG, "Capture: http://%s.local:%d/capture", host, HTTP_SERVER_PORT);
+    ESP_LOGI(HTTP_TAG, "Status: http://%s.local:%d/status", host, HTTP_SERVER_PORT);
 
     return ESP_OK;
 }

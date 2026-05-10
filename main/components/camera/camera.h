@@ -18,4 +18,5 @@
 
 esp_err_t camera_init(void);
 camera_fb_t *camera_capture(void);
+bool capture_jpeg(uint8_t **out_buf, size_t *out_len, bool *needs_free);
 #endif //ESP_CAM_CAMERA_H

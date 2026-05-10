@@ -3,6 +3,9 @@
 //
 
 #include "camera.h"
+
+#include <esp_timer.h>
+
 #include "components/config/config.h"
 #include "esp_log.h"
 
@@ -33,12 +36,14 @@ esp_err_t camera_init(void) {
         .ledc_timer   = LEDC_TIMER_0,
         .ledc_channel = LEDC_CHANNEL_0,
 
-        .pixel_format = PIXFORMAT_JPEG,
+        /* GC2145 не поддерживает аппаратный JPEG —
+           используем RGB565, конвертация в JPEG через frame2jpg() */
+        .pixel_format = PIXFORMAT_RGB565,
         .frame_size   = FRAME_SIZE,
         .jpeg_quality = JPEG_QUALITY,
 
-        /* 2 буфера в PSRAM для двойной буферизации */
-        .fb_count     = 2,
+        /* 2 буфера в PSRAM */
+        .fb_count     = 1,
         .fb_location  = CAMERA_FB_IN_PSRAM,
         .grab_mode    = CAMERA_GRAB_WHEN_EMPTY,
     };
@@ -80,11 +85,42 @@ esp_err_t camera_init(void) {
     return ESP_OK;
 }
 
-camera_fb_t *camera_capture(void)
-{
+camera_fb_t *camera_capture(void) {
     camera_fb_t *fb = esp_camera_fb_get();
     if (!fb) {
         ESP_LOGE(TAG, "Frame buffer capture failed");
     }
     return fb;
+}
+
+bool capture_jpeg(uint8_t **out_buf, size_t *out_len, bool *needs_free) {
+    int64_t t0 = esp_timer_get_time();
+    camera_fb_t *fb = esp_camera_fb_get();
+    int64_t t1 = esp_timer_get_time();
+    if (!fb) {
+        return false;
+    }
+
+    if (fb->format == PIXFORMAT_JPEG) {
+        *out_buf    = fb->buf;
+        *out_len    = fb->len;
+        *needs_free = false;
+        esp_camera_fb_return(fb);
+        return true;
+    }
+
+    /* GC2145: RGB565 → JPEG */
+    uint8_t *jpg = NULL;
+    size_t   len = 0;
+    const bool ok = frame2jpg(fb, JPEG_QUALITY, &jpg, &len);
+    int64_t t2 = esp_timer_get_time();
+    ESP_LOGI(TAG, "capture: %.1fms, convert: %.1fms, size: %zu bytes",
+             (t1-t0)/1000.0, (t2-t1)/1000.0, len);
+    esp_camera_fb_return(fb);
+    if (!ok || !jpg) return false;
+
+    *out_buf    = jpg;
+    *out_len    = len;
+    *needs_free = true;
+    return true;
 }
