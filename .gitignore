@@ -101,3 +101,5 @@ _deps
 CMakeUserPresets.json
 cmake-build-debug
 build
+managed_components
+sdkconfig.old
