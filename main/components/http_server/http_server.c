@@ -14,6 +14,14 @@
 static const char* HTTP_TAG = "HTTP";
 static httpd_handle_t s_httpd = NULL;
 
+static const char *method_str(httpd_method_t m) {
+    switch(m) {
+        case HTTP_GET:  return "GET ";
+        case HTTP_POST: return "POST";
+        default:        return "??? ";
+    }
+}
+
 esp_err_t http_server_start(char* host) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = HTTP_SERVER_PORT;
@@ -32,51 +40,18 @@ esp_err_t http_server_start(char* host) {
         return ESP_FAIL;
     }
 
-    const httpd_uri_t uri_index = {
-        .uri = "/",
-        .method = HTTP_GET,
-        .handler = index_handler,
-        .user_ctx = NULL
+    const httpd_uri_t uris[] = {
+        {"/",        HTTP_GET,  index_handler,   NULL},
+        {"/stream",  HTTP_GET,  stream_handler,  NULL},
+        {"/capture", HTTP_GET,  capture_handler, NULL},
+        {"/save",    HTTP_POST, save_image_handler,    NULL},
+        {"/status",  HTTP_GET,  status_handler,  NULL},
+        {"/torch", HTTP_GET, torch_handler, NULL},
     };
-    httpd_register_uri_handler(s_httpd, &uri_index);
-
-    const httpd_uri_t uri_status = {
-        .uri = "/status",
-        .method = HTTP_GET,
-        .handler = status_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(s_httpd, &uri_status);
-
-    const httpd_uri_t save_image = {
-        .uri = "/save",
-        .method = HTTP_POST,
-        .handler = save_image_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(s_httpd, &save_image);
-
-    const httpd_uri_t stream_uri = {
-        .uri      = "/stream",
-        .method   = HTTP_GET,
-        .handler  = stream_handler,
-        .user_ctx = NULL,
-    };
-    httpd_register_uri_handler(s_httpd, &stream_uri);
-
-    const httpd_uri_t capture_uri = {
-        .uri      = "/capture",
-        .method   = HTTP_GET,
-        .handler  = capture_handler,
-        .user_ctx = NULL,
-    };
-    httpd_register_uri_handler(s_httpd, &capture_uri);
-
-    ESP_LOGI(HTTP_TAG, "Index:  http://%s.local:%d", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Stream:  http://%s.local:%d/stream", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Save Image: http://%s.local:%d/save", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Capture: http://%s.local:%d/capture", host, HTTP_SERVER_PORT);
-    ESP_LOGI(HTTP_TAG, "Status: http://%s.local:%d/status", host, HTTP_SERVER_PORT);
+    for (int i = 0; i < 6; i++) {
+        httpd_register_uri_handler(s_httpd, &uris[i]);
+        ESP_LOGI(HTTP_TAG, "%s http://%s.local:%d%s", method_str(uris[i].method), host, HTTP_SERVER_PORT, uris[i].uri);
+    }
 
     return ESP_OK;
 }

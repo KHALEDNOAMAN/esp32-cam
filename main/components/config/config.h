@@ -11,6 +11,8 @@
 #else
     #define WIFI_SSID "ssid"
     #define WIFI_PASSWORD "12345678"
+    #define TG_TOKEN   "7123456789:AAF..."   // ← ваш токен
+    #define TG_CHAT_ID "123456789"
 #endif
 
 #define WIFI_MAX_RETRY 10
@@ -48,9 +50,10 @@
 
 #define CAPTURE_INTERVAL_MS 5000
 #define JPEG_QUALITY 30
-#define FRAME_SIZE FRAMESIZE_QQVGA
+#define FRAME_SIZE FRAMESIZE_VGA
 
-#define HOST "cam-dev" //ping cam-dev.local
+#define APP_NAME "ESP CAM"
+#define APP_HOST "cam-dev" //ping cam-dev.local
 #define STREAM_BOUNDARY "frame"
 #define STREAM_CONTENT_TYPE \
 "multipart/x-mixed-replace;boundary=" STREAM_BOUNDARY

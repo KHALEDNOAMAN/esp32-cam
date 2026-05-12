@@ -12,7 +12,11 @@
 #include "components/http_server/http_server.h"
 #include "components/nvs/nvs.h"
 #include "components/sdcard/sdcard.h"
+#include "components/telegram/telegram.h"
+#include "components/torch/torch.h"
+#include "components/sntp/sntp.h"
 #include "components/wifi/wifi.h"
+#include "components/bus/bus.h"
 
 static const char *MAIN_TAG = "MAIN";
 
@@ -26,9 +30,21 @@ void app_main(void)
     ESP_LOGI(MAIN_TAG, "Version: %s\n", PROJECT_VER);
     ESP_ERROR_CHECK(nvs_init());
 
-    esp_err_t cam_ret = camera_init();
-    if (cam_ret != ESP_OK) {
-        ESP_LOGE(MAIN_TAG, "Camera init failed: %s", esp_err_to_name(cam_ret));
+    bus_cfg_t q_qfg = {
+        .count = 10,
+        .delay = 50,
+    };
+    bus_init(&q_qfg);
+
+    esp_err_t ret = torch_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(MAIN_TAG, "Torch init failed: %s", esp_err_to_name(ret));
+    }
+    torch_off();
+
+    ret = camera_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(MAIN_TAG, "Camera init failed: %s", esp_err_to_name(ret));
     } else {
         ESP_LOGI(MAIN_TAG, "Camera OK");
     }
@@ -48,9 +64,11 @@ void app_main(void)
         ESP_LOGI(MAIN_TAG, "WiFi connected: %s", ip_str);
     }
     if (dnsm_init() == ESP_OK) {
-        strcpy(ip_str, HOST);
+        strcpy(ip_str, APP_HOST);
     }
-
+    time_sync_init();
     ESP_ERROR_CHECK(http_server_start(ip_str));
+    torch_blink(5, 100);
+    telegram_send_text_async("ESP32-CAM online ✅");
     vTaskDelete(NULL);
 }

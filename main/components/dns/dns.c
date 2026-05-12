@@ -18,8 +18,8 @@ esp_err_t dnsm_init(void) {
 
         return err;
     }
-    ESP_ERROR_CHECK(mdns_hostname_set(HOST));
-    ESP_ERROR_CHECK(mdns_instance_name_set("ESP CAM device"));
+    ESP_ERROR_CHECK(mdns_hostname_set(APP_HOST));
+    ESP_ERROR_CHECK(mdns_instance_name_set(APP_NAME));
 
     return ESP_OK;
 }

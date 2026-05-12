@@ -38,7 +38,7 @@ esp_err_t camera_init(void) {
 
         /* GC2145 не поддерживает аппаратный JPEG —
            используем RGB565, конвертация в JPEG через frame2jpg() */
-        .pixel_format = PIXFORMAT_RGB565,
+        .pixel_format = PIXFORMAT_JPEG, // PIXFORMAT_RGB565,
         .frame_size   = FRAME_SIZE,
         .jpeg_quality = JPEG_QUALITY,
 

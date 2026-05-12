@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 esp_err_t index_handler(httpd_req_t *req) {
-    static char html[2048];
+    static char html[3048];
 
     snprintf(html, sizeof(html),
         "<!DOCTYPE html><html><head>"
@@ -38,6 +38,9 @@ esp_err_t index_handler(httpd_req_t *req) {
         "<button onclick=\"window.open('/capture')\">&#128247; Snapshot</button>"
         "<button onclick=\"fetch('/save',{method:'POST'}).then(r=>r.json()).then(d=>document.getElementById('info').textContent=JSON.stringify(d,null,2))\">&#128190; Save SD</button>"
         "<button onclick=\"fetch('/status').then(r=>r.json()).then(d=>document.getElementById('info').textContent=JSON.stringify(d,null,2))\">&#128202; Status</button>"
+        "<button onclick=\"fetch('/flash?v=255')\">💡 Flash ON</button>"
+        "<button onclick=\"fetch('/flash?v=128')\">💡 50%%</button>"
+        "<button onclick=\"fetch('/flash?v=0')\" class='red'>💡 Flash OFF</button>"
         "</div>"
         "<pre id='info'>Ready.</pre>"
         "</div>"
