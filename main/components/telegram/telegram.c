@@ -18,7 +18,7 @@ esp_err_t telegram_send_text(const char *text) {
 
     char body[512];
     snprintf(body, sizeof(body), "{\"chat_id\":\"%s\",\"text\":\"%s\"}", TG_CHAT_ID, text);
-    const esp_err_t ret = http_post_req(url, body, "application/json", response, sizeof(response));
+    const esp_err_t ret = http_post_req(url, body, strlen(body), "application/json", response, sizeof(response));
     ESP_LOGI(TELEGRAM_TAG, "Response: %s", response);
 
     return ret;
@@ -87,7 +87,7 @@ esp_err_t telegram_send_photo(const uint8_t *jpg, size_t len, const char *captio
 
     char ct[128];
     snprintf(ct, sizeof(ct),"multipart/form-data; boundary=%s", boundary);
-    const esp_err_t ret = http_post_req(url, (char*)body, ct, response, sizeof(response));
+    const esp_err_t ret = http_post_req(url, (char*)body, total, ct, response, sizeof(response));
     ESP_LOGI(TELEGRAM_TAG, "Response: %s", response);
 
     return ret;

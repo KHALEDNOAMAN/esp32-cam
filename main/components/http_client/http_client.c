@@ -80,6 +80,7 @@ esp_err_t http_get_req(
 esp_err_t http_post_req(
     const char *url,
     const char *data,
+    const int data_len,
     const char *content_type,
     char *out_buffer,
     const int out_buffer_size
@@ -107,8 +108,8 @@ esp_err_t http_post_req(
         esp_http_client_set_header(client, "Content-Type", content_type);
     }
     if (data) {
-        ESP_LOGI(HC_TAG, "POST request: %s", data);
-        esp_http_client_set_post_field(client, data, strlen(data));
+        ESP_LOGI(HC_TAG, "POST request: %d bytes", data_len);
+        esp_http_client_set_post_field(client, data, data_len);
     }
     const esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK) {
