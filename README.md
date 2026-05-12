@@ -1,14 +1,14 @@
-# ESP32-CAM — ESP-IDF проект
+# ESP32-CAM — ESP-IDF Project
 
-## Возможности
-- 📷 **MJPEG стриминг** по WiFi (порт 81)
-- 💾 **Автосъёмка** на microSD (каждые 5 сек, настраивается)
-- 🌐 **Веб-интерфейс** для просмотра и управления (порт 80)
+## Features
+- 📷 **MJPEG Streaming** over WiFi (port 81)
+- 💾 **Auto-capture** to microSD (every 5 seconds, configurable)
+- 🌐 **Web Interface** for viewing and control (port 80)
 - 📡 REST API: `/status`, `/capture`
 
 ---
 
-## Структура файлов
+## File Structure
 
 ```
 esp32cam_project/
@@ -17,7 +17,7 @@ esp32cam_project/
 ├── sdkconfig.defaults
 └── main/
     ├── CMakeLists.txt
-    ├── config.h          ← ВСЕ настройки здесь
+    ├── config.h          ← ALL settings here
     ├── main.c
     ├── camera.c / .h
     ├── sdcard.c / .h
@@ -28,55 +28,55 @@ esp32cam_project/
 
 ---
 
-## Быстрый старт
+## Quick Start
 
-### 1. Требования
-- ESP-IDF v5.x (рекомендуется 5.2+)
-- Плата: AI-Thinker ESP32-CAM + Type-C downloader
+### 1. Requirements
+- ESP-IDF v5.x (recommended 5.2+)
+- Board: AI-Thinker ESP32-CAM + Type-C downloader
 
-### 2. Настройте credentials в `main/config.h`
+### 2. Configure credentials in `main/config.h`
 ```c
 #define WIFI_SSID     "YOUR_SSID"
 #define WIFI_PASSWORD "YOUR_PASSWORD"
 ```
 
-### 3. Добавьте компонент esp_camera
+### 3. Add the esp_camera component
 
-В корень проекта добавьте `idf_component.yml`:
+Add `idf_component.yml` to project root:
 ```yaml
 dependencies:
   espressif/esp32-camera: "^2.0.0"
 ```
-Или клонируйте вручную:
+Or clone manually:
 ```bash
 git clone https://github.com/espressif/esp32-camera components/esp32-camera
 ```
 
-### 4. Сборка и прошивка
+### 4. Build and Flash
 
 ```bash
-# Настройте IDF
+# Setup IDF
 . $IDF_PATH/export.sh
 
-# Установите target
+# Set target
 idf.py set-target esp32
 
-# (Опционально) Конфигурация
+# (Optional) Configuration
 idf.py menuconfig
 
-# Сборка
+# Build
 idf.py build
 
-# Прошивка (замените /dev/ttyUSB0 на ваш порт)
+# Flash (replace /dev/ttyUSB0 with your port)
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-### 5. Переключение платы в режим прошивки
-На плате Type-C downloader: нажать и держать **BOOT**, нажать **RST**, отпустить **BOOT**.
+### 5. Put board into flash mode
+On the Type-C downloader board: press and hold **BOOT**, press **RST**, release **BOOT**.
 
 ---
 
-## Подключение SD-карты (SPI)
+## SD Card Connection (SPI)
 
 | SD Pin | ESP32-CAM GPIO |
 |--------|----------------|
@@ -87,27 +87,27 @@ idf.py -p /dev/ttyUSB0 flash monitor
 | VCC    | 3.3V           |
 | GND    | GND            |
 
-> ⚠️ GPIO2 используется как MISO для SD и как LED на плате — не включайте LED во время работы SD.
+> ⚠️ GPIO2 is used as MISO for SD and as LED on the board — do not enable LED during SD operation.
 
 ---
 
-## Endpoints
+## API Endpoints
 
-| URL | Метод | Описание |
-|-----|-------|----------|
-| `http://<IP>/`         | GET  | Веб-плеер |
-| `http://<IP>/status`   | GET  | JSON статус |
-| `http://<IP>/capture`  | POST | Снимок → SD |
-| `http://<IP>:81/stream`  | GET  | MJPEG поток |
-| `http://<IP>:81/capture` | GET  | Одиночный JPEG |
+| URL | Method | Description |
+|-----|--------|-------------|
+| `http://<IP>/`         | GET  | Web player |
+| `http://<IP>/status`   | GET  | JSON status |
+| `http://<IP>/capture`  | POST | Capture → SD |
+| `http://<IP>:81/stream`  | GET  | MJPEG stream |
+| `http://<IP>:81/capture` | GET  | Single JPEG |
 
 ---
 
-## Настройки в config.h
+## Configuration in `config.h`
 
 ```c
-#define CAPTURE_INTERVAL_MS  5000   // интервал авто-съёмки
-#define JPEG_QUALITY         12     // 0=лучше, 63=хуже
+#define CAPTURE_INTERVAL_MS  5000   // auto-capture interval
+#define JPEG_QUALITY         12     // 0=best, 63=worst
 #define FRAME_SIZE    FRAMESIZE_VGA // VGA=640×480, SVGA=800×600
 #define HTTP_SERVER_PORT     80
 #define STREAM_SERVER_PORT   81
@@ -115,12 +115,12 @@ idf.py -p /dev/ttyUSB0 flash monitor
 
 ---
 
-## Просмотр стрима в VLC
+## Viewing Stream in VLC
 ```
-Медиа → Открыть URL → http://<IP>:81/stream
+Media → Open Network Stream → http://<IP>:81/stream
 ```
 
-## Python-клиент для записи стрима
+## Python Client for Recording Stream
 ```python
 import cv2
 cap = cv2.VideoCapture("http://<IP>:81/stream")
@@ -134,12 +134,12 @@ while True:
 
 ---
 
-## Устранение проблем
+## Troubleshooting
 
-| Симптом | Решение |
-|---------|---------|
-| Camera init failed | Проверьте питание 5V, не 3.3V |
-| SD mount failed | Отформатируйте карту в FAT32 |
-| WiFi не подключается | Проверьте SSID/пароль, только 2.4GHz |
-| Стрим зависает | Уменьшите разрешение или увеличьте quality |
-| PSRAM error | Убедитесь что `CONFIG_ESP32_SPIRAM_SUPPORT=y` |
+| Symptom | Solution |
+|---------|----------|
+| Camera init failed | Check 5V power, not 3.3V |
+| SD mount failed | Format card as FAT32 |
+| WiFi not connecting | Verify SSID/password, 2.4GHz only |
+| Stream freezing | Lower resolution or increase quality |
+| PSRAM error | Ensure `CONFIG_ESP32_SPIRAM_SUPPORT=y` |

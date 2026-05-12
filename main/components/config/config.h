@@ -4,21 +4,20 @@
 
 #ifndef ESP_CAM_CONFIG_H
 #define ESP_CAM_CONFIG_H
-#define USE_LOCAL_CONFIG 0
 
 #ifdef USE_LOCAL_CONFIG
     #include "config_local.h"
 #else
     #define WIFI_SSID "ssid"
     #define WIFI_PASSWORD "12345678"
-    #define TG_TOKEN   "7123456789:AAF..."   // ← ваш токен
+    #define TG_TOKEN   "7123456789:AAF..."
     #define TG_CHAT_ID "123456789"
 #endif
 
 #define WIFI_MAX_RETRY 10
 
 #define CAM_PIN_PWDN    32
-#define CAM_PIN_RESET   -1   // не подключён на AI-Thinker
+#define CAM_PIN_RESET   -1
 #define CAM_PIN_XCLK     0
 #define CAM_PIN_SIOD    26
 #define CAM_PIN_SIOC    27
