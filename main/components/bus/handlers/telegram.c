@@ -4,9 +4,9 @@
 #include "components/bus/bus.h"
 #include "components/telegram/telegram.h"
 
-
 void telegram_send_msg(const bus_msg_t *msg) {
     telegram_send_text(msg->value.valT);
+    free(msg->value.valT);
 }
 
 void telegram_send_jpg(const bus_msg_t *msg) {

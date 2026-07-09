@@ -1,5 +1,6 @@
 #include "components/config/config.h"
 #include <esp_err.h>
+#include <esp_psram.h>
 #include <esp_system.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
@@ -32,8 +33,8 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_init());
 
     bus_cfg_t q_qfg = {
-        .count = 10,
-        .delay = 50,
+        .count = BUS_QUEUE_SIZE,
+        .delay = BUS_QUEUE_DELAY_MS,
     };
     bus_init(&q_qfg);
 
@@ -50,12 +51,12 @@ void app_main(void)
         ESP_LOGI(MAIN_TAG, "Camera OK");
     }
 
-    if (sdcard_init() == ESP_OK) {
-        g_sd_ok = true;
-        ESP_LOGI(MAIN_TAG, "SD card: OK");
-    } else {
-        ESP_LOGW(MAIN_TAG, "SD card: NOT available — streaming only mode");
-    }
+    // if (sdcard_init() == ESP_OK) {
+    //     g_sd_ok = true;
+    //     ESP_LOGI(MAIN_TAG, "SD card: OK");
+    // } else {
+    //     ESP_LOGW(MAIN_TAG, "SD card: NOT available — streaming only mode");
+    // }
 
     if (wifi_init_sta(ip_str) != ESP_OK) {
         ESP_LOGE(MAIN_TAG, "WiFi init failed — rebooting in 5s");
@@ -69,8 +70,9 @@ void app_main(void)
     }
     time_sync_init();
     ESP_ERROR_CHECK(http_server_start(ip_str));
-    motion_init();
+    // motion_init();
     torch_blink(5, 100);
+    ESP_LOGI("CAMERA", "PSRAM size: %d", esp_psram_get_size());
     telegram_send_text_async("online ✅");
     vTaskDelete(NULL);
 }

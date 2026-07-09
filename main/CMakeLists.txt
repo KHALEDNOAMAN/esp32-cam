@@ -24,24 +24,38 @@ idf_component_register(
             "components/sntp/sntp.c"
             "components/telegram/telegram.h"
             "components/telegram/telegram.c"
-            "components/motion/motion.h"
             "components/motion/motion.c"
+            "components/motion/motion_receiver.c"
+            "components/motion/motion.h"
             "components/bus/bus.h"
             "components/bus/bus.c"
             "components/bus/handlers/handlers.h"
             "components/bus/handlers/telegram.c"
-            "components/http_client/http_client.h"
             "components/http_client/http_client.c"
+            "components/http_client/http_client.h"
+            "components/http_server/http_server.c"
+            "components/http_server/http_server.h"
+            "components/http_server/http_helper/http_helper.c"
+            "components/http_server/http_helper/http_helper.h"
             "components/http_server/actions/actions.h"
-            "components/http_server/actions/index_action.c"
-            "components/http_server/actions/status_action.c"
-            "components/http_server/actions/stream_action.c"
             "components/http_server/actions/capture_action.c"
-            "components/http_server/actions/torch_action.c"
+            "components/http_server/actions/stream_action.c"
             "components/http_server/actions/save_image_action.c"
+            "components/http_server/actions/index_action.c"
+            "components/http_server/actions/cmd_camera_action.c"
+            "components/http_server/actions/status_camera_action.c"
+            "components/http_server/actions/record_action.c"
+            "components/http_server/actions/sse_action.c"
+            "components/http_server/actions/ws_action.c"
+            "components/video/avi_writer.c"
+            "components/video/avi_writer.h"
+            "components/video/video.c"
+            "components/video/video.h"
         INCLUDE_DIRS
             "."
             "components/config"
+        EMBED_FILES
+            "components/http_server/web/index.html"
         REQUIRES
             esp_wifi
             esp_http_server
@@ -49,6 +63,7 @@ idf_component_register(
             fatfs
             sdmmc
             driver
+            esp_psram
             esp_timer
             nvs_flash
             esp_event
@@ -59,6 +74,7 @@ idf_component_register(
             freertos
             esp_https_ota
             esp_http_client
+            esp_hw_support
             mbedtls
 )
 target_compile_definitions(${COMPONENT_LIB} PRIVATE -DPROJECT_VER="${PROJECT_VER}")

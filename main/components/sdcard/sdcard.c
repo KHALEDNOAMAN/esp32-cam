@@ -3,75 +3,61 @@
 //
 
 #include "sdcard.h"
-#include "config.h"
-#include "esp_log.h"
-#include "driver/spi_common.h"
 #include "driver/sdspi_host.h"
-#include "sdmmc_cmd.h"
-#include "esp_vfs_fat.h"
-#include "img_converters.h"
+#include "driver/spi_common.h"
 #include "esp_camera.h"
+#include "esp_log.h"
+#include "esp_vfs_fat.h"
+#include <driver/sdmmc_host.h>
 #include <stdio.h>
-#include <string.h>
 
-static const char* SD_TAG = "SDCARD";
-static sdmmc_card_t* s_card = NULL;
+#include "components/config/config.h"
+
+static const char *SD_TAG = "SDCARD";
+static sdmmc_card_t *s_card = NULL;
 static char s_file_path[64] = {0};
 static uint32_t s_file_index = 0;
 
-
-esp_err_t sdcard_init(void) {
-    ESP_LOGI(SD_TAG, "Mounting SD card (SPI)...");
-
-    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-    host.slot = SPI2_HOST;
-
-    const spi_bus_config_t bus_cfg = {
-        .mosi_io_num = SD_PIN_MOSI,
-        .miso_io_num = SD_PIN_MISO,
-        .sclk_io_num = SD_PIN_CLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 4096,
-    };
-    esp_err_t ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
-    if (ret != ESP_OK) {
-        ESP_LOGE(SD_TAG, "SPI bus init failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-
-    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-    slot_config.gpio_cs = SD_PIN_CS;
-    slot_config.host_id = host.slot;
-
-    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+esp_err_t sdcard_init() {
+    const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
         .max_files = SD_MAX_FILES,
-        .allocation_unit_size = 16 * 1024,
+        .allocation_unit_size = 16 * 1024
     };
+    const sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+    slot_config.width = 1;
 
-    ret = esp_vfs_fat_sdspi_mount(SD_MOUNT_POINT, &host, &slot_config, &mount_config, &s_card);
+    slot_config.clk = SD_PIN_CLK;
+    slot_config.cmd = SD_PIN_CMD;
+    slot_config.d0 = SD_PIN_D0;
+
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount(
+        SD_MOUNT_POINT, &host, &slot_config, &mount_config, &s_card);
+
     if (ret != ESP_OK) {
-        ESP_LOGE(SD_TAG, "SD mount failed: %s", esp_err_to_name(ret));
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(SD_TAG, "Failed to mount FS. Format the card.");
-        }
+        ESP_LOGE(SD_TAG, "Mount failed: %s", esp_err_to_name(ret));
         return ret;
     }
-
-    sdmmc_card_print_info(stdout, s_card);
-    ESP_LOGI(SD_TAG, "SD card mounted at: %s", SD_MOUNT_POINT);
+    ESP_LOGI(SD_TAG, "SD card mounted");
 
     return ESP_OK;
 }
 
-const char* sdcard_save_jpeg(const uint8_t* data, const size_t length) {
+bool sdcard_is_mounted(void) {
+    return s_card != NULL;
+}
+
+const char *sdcard_save_jpeg(const uint8_t *data, const size_t length) {
     if (!s_card) {
         ESP_LOGE(SD_TAG, "SD card not initialized");
         return NULL;
     }
 
-    snprintf(s_file_path, sizeof(s_file_path), SD_MOUNT_POINT "/img%05lu.jpg", (unsigned long)s_file_index++);
+    snprintf(s_file_path,
+             sizeof(s_file_path),
+             SD_MOUNT_POINT "/img%05lu.jpg",
+             (unsigned long) s_file_index++);
 
     FILE *f = fopen(s_file_path, "wb");
     if (!f) {
@@ -83,7 +69,11 @@ const char* sdcard_save_jpeg(const uint8_t* data, const size_t length) {
     fclose(f);
 
     if (written != length) {
-        ESP_LOGE(SD_TAG, "Write file (%s) error: %zu/%zu bytes", s_file_path, written, length);
+        ESP_LOGE(SD_TAG,
+                 "Write file (%s) error: %zu/%zu bytes",
+                 s_file_path,
+                 written,
+                 length);
         return NULL;
     }
 
@@ -92,7 +82,34 @@ const char* sdcard_save_jpeg(const uint8_t* data, const size_t length) {
     return s_file_path;
 }
 
-void sdcard_deinit(void) {
+bool sd_append_text(const char *filename, const char *text) {
+    char path[256];
+    snprintf(path, sizeof(path), "%s/%s", SD_MOUNT_POINT, filename);
+    FILE *f = fopen(path, "a");
+    if (f == NULL) {
+        return false;
+    }
+    fprintf(f, "%s\n", text);
+    fclose(f);
+    return true;
+}
+
+bool sd_append_f(const char *filename, const char *fmt, ...) {
+    char path[256];
+    snprintf(path, sizeof(path), "%s/%s", SD_MOUNT_POINT, filename);
+    FILE *f = fopen(path, "a");
+    if (f == NULL) {
+        return false;
+    }
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(f, fmt, args);
+    va_end(args);
+    fclose(f);
+    return true;
+}
+
+void sdcard_de_init(void) {
     if (s_card) {
         const esp_err_t ret = esp_vfs_fat_sdcard_unmount(SD_MOUNT_POINT, s_card);
         s_card = NULL;

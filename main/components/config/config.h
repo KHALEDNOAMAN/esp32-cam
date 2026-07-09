@@ -37,28 +37,42 @@
 
 #define CAM_XCLK_FREQ   20000000   // 20 MHz
 
+#define MOTION_PIN 47
 
 #define SD_PIN_MOSI     15
 #define SD_PIN_MISO      2
 #define SD_PIN_CLK      14
 #define SD_PIN_CS       13
+
+// #define SD_PIN_CLK 39
+#define SD_PIN_CMD 38
+#define SD_PIN_D0 40
+
 #define SD_MOUNT_POINT  "/sdcard"
 #define SD_MAX_FILES     5
 
 #define HTTP_SERVER_PORT 80
 
 #define CAPTURE_INTERVAL_MS 5000
-#define JPEG_QUALITY 30
-#define FRAME_SIZE FRAMESIZE_VGA
+#define JPEG_QUALITY 60
+#define FRAME_SIZE FRAMESIZE_XGA  // 1024x768 (было SVGA 800x600)
+
+// --- Video recording ---
+#define VIDEO_FRAME_SIZE FRAMESIZE_SVGA  // 800x600 while recording (stills stay XGA)
+#define VIDEO_DEFAULT_SEC 10
+#define VIDEO_MIN_SEC 1
+#define VIDEO_MAX_SEC 30
+#define VIDEO_MAX_FPS 30  // used only to size the idx1 buffer
 
 #define APP_NAME "ESP CAM"
 #define APP_HOST "cam-dev" //ping cam-dev.local
-#define STREAM_BOUNDARY "frame"
-#define STREAM_CONTENT_TYPE \
-"multipart/x-mixed-replace;boundary=" STREAM_BOUNDARY
-#define STREAM_PART         \
-"Content-Type: image/jpeg\r\n"          \
-"Content-Length: %zu\r\n\r\n"
-#define STREAM_BOUNDARY_STR "\r\n--" STREAM_BOUNDARY "\r\n"
+
+#define STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=fb"
+#define STREAM_BOUNDARY "\r\n--fb\r\n"
+#define STREAM_PART_FMT "Content-Type: image/jpeg\r\nContent-Length: %zu\r\n\r\n"
+
+#define BUS_QUEUE_SIZE 20
+#define BUS_QUEUE_DELAY_MS 100
+#define BUS_DEFAULT_TTL 10000  // 10 сек
 
 #endif //ESP_CAM_CONFIG_H

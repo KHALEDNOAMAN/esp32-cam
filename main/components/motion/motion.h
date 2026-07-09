@@ -5,7 +5,6 @@
 #ifndef SP_CAM_MOTION_H
 #define SP_CAM_MOTION_H
 
-#define MOTION_PIN GPIO_NUM_12
-
 void motion_init(void);
+void pir_polling_task(void *arg);
 #endif //SP_CAM_MOTION_H
