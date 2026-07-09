@@ -4,20 +4,21 @@
 
 #ifndef ESP_CAM_CONFIG_H
 #define ESP_CAM_CONFIG_H
+#define USE_LOCAL_CONFIG 1
 
 #ifdef USE_LOCAL_CONFIG
     #include "config_local.h"
 #else
     #define WIFI_SSID "ssid"
     #define WIFI_PASSWORD "12345678"
-    #define TG_TOKEN   "7123456789:AAF..."
+    #define TG_TOKEN   "7123456789:AAF..."   // ← ваш токен
     #define TG_CHAT_ID "123456789"
 #endif
 
 #define WIFI_MAX_RETRY 10
 
 #define CAM_PIN_PWDN    32
-#define CAM_PIN_RESET   -1
+#define CAM_PIN_RESET   -1   // не подключён на AI-Thinker
 #define CAM_PIN_XCLK     0
 #define CAM_PIN_SIOD    26
 #define CAM_PIN_SIOC    27
@@ -55,7 +56,7 @@
 
 #define CAPTURE_INTERVAL_MS 5000
 #define JPEG_QUALITY 60
-#define FRAME_SIZE FRAMESIZE_XGA  // 1024x768 (было SVGA 800x600)
+#define FRAME_SIZE FRAMESIZE_SVGA  // 800x600 — balanced max-perf streaming (было XGA 1024x768)
 
 // --- Video recording ---
 #define VIDEO_FRAME_SIZE FRAMESIZE_SVGA  // 800x600 while recording (stills stay XGA)

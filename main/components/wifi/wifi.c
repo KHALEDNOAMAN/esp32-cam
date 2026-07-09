@@ -86,7 +86,7 @@ esp_err_t wifi_init_sta(char* ip) {
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(WIFI_TAG, "Connected to AP: %s", WIFI_SSID);
-        strcopy(ip, sizeof(ip), ip_str);
+        strcopy(ip, sizeof(ip_str), ip_str);
         return ESP_OK;
     }
 

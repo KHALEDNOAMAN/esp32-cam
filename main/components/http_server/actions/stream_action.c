@@ -16,7 +16,7 @@
 static const char* TAG = "STREAM_A";
 
 #define FPS_SAMPLES 12
-#define STREAM_TARGET_FPS 12
+#define STREAM_TARGET_FPS 18
 #define STREAM_TARGET_MS (1000 / STREAM_TARGET_FPS)
 
 /* ──────────────────────────────────────────────────────────────────────────

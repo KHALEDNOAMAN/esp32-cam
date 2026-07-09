@@ -38,7 +38,7 @@ esp_err_t http_get_req(const char* base_url, const char* query,
   if (query && strlen(query) > 0) {
     snprintf(url, sizeof(url), "%s?%s", base_url, query);
   } else {
-    strncpy(url, base_url, sizeof(url));
+    snprintf(url, sizeof(url), "%s", base_url);
   }
   http_response_t resp = {.buffer = out_buffer,
                           .max_len = out_buffer_size,
