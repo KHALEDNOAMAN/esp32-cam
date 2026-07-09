@@ -11,7 +11,7 @@
 
 #include "components/torch/torch.h"
 
-static const char* CAPTURE_ACTION_TAG = "CAPTURE_ACTION";
+// static const char* CAPTURE_ACTION_TAG = "CAPTURE_ACTION";
 
 esp_err_t torch_handler(httpd_req_t *req) {
     char query[32] = {0};

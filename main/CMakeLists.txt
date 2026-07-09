@@ -24,6 +24,8 @@ idf_component_register(
             "components/sntp/sntp.c"
             "components/telegram/telegram.h"
             "components/telegram/telegram.c"
+            "components/motion/motion.h"
+            "components/motion/motion.c"
             "components/bus/bus.h"
             "components/bus/bus.c"
             "components/bus/handlers/handlers.h"
@@ -40,8 +42,6 @@ idf_component_register(
         INCLUDE_DIRS
             "."
             "components/config"
-        EMBED_TXTFILES
-            "client_cert.pem"
         REQUIRES
             esp_wifi
             esp_http_server

@@ -5,7 +5,6 @@
 #include "components/telegram/telegram.h"
 
 
-static const char* IRH_TAG = "IR_H";
 void telegram_send_msg(const bus_msg_t *msg) {
     telegram_send_text(msg->value.valT);
 }

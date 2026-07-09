@@ -9,7 +9,7 @@
 #include "esp_log.h"
 #include <time.h>
 
-static const char* SNTP_TAG = "SNTP";
+// static const char* SNTP_TAG = "SNTP";
 // #define UPDATE_INTERVAL_MS 100
 //
 // static void clock_task(void *arg) {

@@ -17,6 +17,7 @@
 #include "components/sntp/sntp.h"
 #include "components/wifi/wifi.h"
 #include "components/bus/bus.h"
+#include "components/motion/motion.h"
 
 static const char *MAIN_TAG = "MAIN";
 
@@ -68,7 +69,8 @@ void app_main(void)
     }
     time_sync_init();
     ESP_ERROR_CHECK(http_server_start(ip_str));
+    motion_init();
     torch_blink(5, 100);
-    telegram_send_text_async("ESP32-CAM online ✅");
+    telegram_send_text_async("online ✅");
     vTaskDelete(NULL);
 }
